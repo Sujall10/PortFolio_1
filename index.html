@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined Hero - Digital Design & Development</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #111111;
+            color: #E8E8E8;
+            overflow-x: hidden;
+            cursor: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #cursor-dot, #cursor-circle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 50%;
+            mix-blend-mode: difference;
+        }
+        #cursor-dot {
+            width: 15px;
+            height: 15px;
+            background-color: white;
+            transition: transform 0.15s ease-out;
+        }
+        #cursor-circle {
+            width: 50px;
+            height: 50px;
+            border: 1px solid white;
+            transition: transform 0.4s ease-out, width 0.3s ease-out, height 0.3s ease-out, background-color 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: black;
+            text-transform: uppercase;
+        }
+        
+        body.cursor-hover-link #cursor-circle {
+            transform: scale(1.5);
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        body.cursor-hover-view #cursor-circle {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-color: white;
+        }
+        body.cursor-hover-drag #cursor-circle {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-color: white;
+        }
+        
+        .marquee {
+            overflow: hidden;
+            position: relative;
+            white-space: nowrap;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .testimonial-marquee {
+  overflow: hidden;
+  width: 100%;
+}
+
+.testimonial-marquee-content {
+  display: flex;
+  gap: 2rem;
+  animation: testimonialMarqueeScroll 20s linear infinite;
+}
+
+@keyframes testimonialMarqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-marquee-content > div {
+  min-width: 24rem; /* keeps w-96 cards consistent */
+}
+
+        .header-scrolled {
+            background-color: rgba(17, 17, 17, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .reveal-wrapper {
+            overflow: hidden;
+        }
+
+        .hero-text-font {
+             font-family: 'Inter', sans-serif;
+        }
+
+        .hero-container {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #111111;
+        }
+
+        .moving-image {
+            width: 100vw; 
+            height: 100vh; 
+            object-fit: cover; 
+            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.7));
+            z-index: 10;
+            position: absolute;
+            transition: transform 0.1s ease-out;
+        }
+        .cta-group {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            opacity: 0;
+            animation: fadeUp 0.8s forwards 0.8s;
+        }
+        
+        @media (min-width: 768px) {
+            .moving-image {
+                clip-path: polygon(var(--clip-start) 0, var(--clip-end) 0, var(--clip-end) 100%, var(--clip-start) 100%);
+            }
+            
+            #image-left {
+                --clip-start: 0%;
+                --clip-end: 50%;
+                left: 0; 
+            }
+
+            #image-right {
+                --clip-start: 50%;
+                --clip-end: 100%;
+                right: 0;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .moving-image {
+                clip-path: polygon(0 var(--clip-start), 100% var(--clip-start), 100% var(--clip-end), 0 var(--clip-end));
+            }
+            
+            #image-left {
+                --clip-start: 0%;
+                --clip-end: 50%;
+                top: 0; 
+            }
+
+            #image-right {
+                --clip-start: 50%;
+                --clip-end: 100%;
+                bottom: 0;
+            }
+        }
+
+        .hero-text {
+            position: absolute;
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            text-align: center;
+            width: 80%;
+            perspective: 1000px;
+            pointer-events: none;
+        }
+
+        .hero-text-inner {
+            transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+            transform-style: preserve-3d;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="cursor-dot"></div>
+    <div id="cursor-circle"></div>
+
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-6 sm:px-8 md:px-12 py-6 flex justify-between items-center">
+            <a href="#" class="text-white font-bold text-xl flex items-center gap-2 cursor-link">
+                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                <span>RAJPUT SUJAL</span>
+            </a>
+            <a href="#" class="text-white text-lg font-medium tracking-wide cursor-link">Menu</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-container">
+            <div id="hero-text" class="hero-text">
+                <div id="hero-text-inner" class="hero-text-inner hero-text-font">
+                    <h1 class="text-5xl md:text-8xl font-extrabold tracking-tight mb-4 text-gray-300">Transforming Data Into Intelligence</h1>
+                   
+                    <p class="text-base md:text-3xl font-light text-white-400 opacity-70">
+                        Crafting intelligent solutions through machine learning, computer vision, and natural language processing
+                    </p>
+                    <!-- <div class="cta-group">
+                        <a href="#work" class="btn btn-primary">View Projects</a>
+                        <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+                    </div> -->
+                </div>
+            </div>
+            
+            <img id="image-left" 
+                 src="images\WhatsApp Image 2025-10-18 at 15.19.50_d71afaef.jpg"
+                 height="100px" 
+                 alt="Technology"
+                 class="moving-image">
+            
+            <img id="image-right" 
+                 src="images\WhatsApp Image 2025-10-18 at 15.19.50_d71afaef.jpg" 
+                 alt="Innovation"
+                 height="100px"
+                 class="moving-image">
+        </div>
+
+        <div id="scroll-spacer" style="height: 300vh; position: relative; z-index: 15;"></div>
+
+        <div class="main-content-wrapper" style="position: relative; z-index: 20; background-color: #111111;">
+            <section class="py-24 sm:py-32 md:py-40">
+                <div class="container mx-auto px-6 sm:px-8 md:px-12">
+                    <div class="reveal-wrapper max-w-4xl mx-auto">
+                        <p class="text-3xl md:text-4xl lg:text-5xl text-center leading-tight md:leading-tight" data-anim="reveal">
+                            Building the Future with AI & data science. A Person that combines design, technology, and strategy to create beautiful and effective digital products for startups.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-24 sm:py-32 md:py-40 bg-[#151515] rounded-t-3xl">
+                <div class="container mx-auto px-6 sm:px-8 md:px-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 cursor-drag" data-anim-container>
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">01</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Web Design</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I design beautiful, user-friendly websites that are tailored to your brand and business goals. My designs are not only visually stunning but also highly functional and optimized for conversions.</p></div>
+                        </div>
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">02</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Branding</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I create strong brand identities that resonate with your target audience. From logo design to comprehensive brand guidelines, I'll help you build a brand that stands out from the competition.</p></div>
+                        </div>
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">03</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Development</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I build fast, scalable, and secure websites and web applications using the latest technologies. My development process is agile, transparent, and focused on delivering high-quality products.</p></div>
+                        </div>
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">04</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Strategy</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I help you define your digital strategy and create a roadmap for success. I work closely with you to understand your business goals and develop a strategy that aligns with your vision.</p></div>
+                        </div>
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">05</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Data Science</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I turn raw data into actionable insights using advanced analytics and visualization techniques. From data cleaning to predictive modeling, I help you make smarter, data-driven decisions that fuel growth.</p></div>
+                        </div>
+
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">06</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Artificial Intelligence</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I design and develop AI-powered solutions that automate processes, enhance customer experiences, and deliver intelligent outcomes. My AI models are tailored to your business needs, ensuring measurable impact and scalability.</p></div>
+                        </div>
+
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">07</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Machine Learning</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I build and train machine learning models that uncover patterns, predict trends, and optimize business operations. From model development to deployment, I ensure high accuracy and performance for real-world applications.</p></div>
+                        </div>
+                        <div class="service-item">
+                            <div class="reveal-wrapper"><div class="text-3xl font-bold mb-4" data-anim="reveal">08</div></div>
+                            <div class="reveal-wrapper"><h3 class="text-4xl lg:text-5xl font-bold mb-6" data-anim="reveal">Automation</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 max-w-md leading-relaxed" data-anim="reveal">I develop intelligent automation systems that streamline workflows, eliminate repetitive tasks, and boost efficiency. Using tools like RPA, AI, and API integrations, I help businesses save time, reduce costs, and operate smarter.</p></div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-24 sm:py-32 md:py-40 bg-[#111]">
+                <div class="marquee py-10"><div class="marquee-content text-6xl md:text-8xl font-extrabold uppercase opacity-10"><span>Featured Work&nbsp;—&nbsp;</span><span>Featured Work&nbsp;—&nbsp;</span><span>Featured Work&nbsp;—&nbsp;</span><span>Featured Work&nbsp;—&nbsp;</span><span>Featured Work&nbsp;—&nbsp;</span></div></div>
+
+                <div class="container mx-auto px-6 sm:px-8 md:px-12 mt-16 space-y-24 md:space-y-32">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center" data-anim-container>
+                        <a href="https://sunmerchandising.com/" class="overflow-hidden rounded-2xl cursor-view"><img src="images\image.png" alt="Project 1" class="w-full h-full object-cover" data-anim="parallax-img"></a>
+                        <div>
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold mb-4" data-anim="reveal">Sun Merchandise</h3></div>
+                            <div class="reveal-wrapper">
+                              <p class="text-lg text-gray-400 mb-6" data-anim="reveal">
+                                Sun Merchandising is a Canada-based sourcing and manufacturing partner specializing in garments, home textiles, and accessories. I developed a modern, responsive website that showcases their global sourcing expertise and quality-driven approach. The site highlights their services, product range, and sustainable practices with a clean UI, fast performance, and strong SEO optimization to attract international clients and Canadian buyers alike.
+                              </p>
+                            </div>
+                            <div class="reveal-wrapper"><a href="https://sunmerchandising.com/" class="text-lg font-medium border-b border-white pb-1 cursor-link" data-anim="reveal">View Project</a></div>
+                        </div>
+                    </div>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center" data-anim-container>
+                        <a href="#" class="md:order-2 overflow-hidden rounded-2xl cursor-view"><img src="images\WhatsApp Image 2025-10-18 at 17.56.41_f789d2cb.jpg" alt="Project 2" class="w-full h-full object-cover" data-anim="parallax-img"></a>
+                        <div class="md:order-1 md:text-right">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold mb-4" data-anim="reveal">EU - Allocation Tool</h3></div>
+                            <div class="reveal-wrapper">
+                              <p class="text-lg text-gray-400 mb-6" data-anim="reveal">
+                                I developed an Automated Allocation Tool for the Europe OmniSales Department at NIQ to streamline expert assignment and workflow management. The tool automates the allocation of projects based on category preferences, improving accuracy, efficiency, and turnaround time. It features seamless data integration, summary reporting, and an intuitive interface that minimizes manual effort while ensuring transparency and consistency across the allocation process.
+                              </p>
+                            </div>
+
+                            <!-- <div class="reveal-wrapper inline-block"><a href="#" class="text-lg font-medium border-b border-white pb-1 cursor-link" data-anim="reveal">View Project</a></div> -->
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center" data-anim-container>
+                        <a href="#" class="overflow-hidden rounded-2xl cursor-view"><img src="images\WhatsApp Image 2025-04-15 at 11.webp" alt="Project 3" class="w-full h-full object-cover" data-anim="parallax-img"></a>
+                        <div>
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold mb-4" data-anim="reveal">Trip Glide</h3></div>
+                            <div class="reveal-wrapper">
+                              <p class="text-lg text-gray-400 mb-6" data-anim="reveal">
+                                Trip Glide is a full-stack travel web application—similar to MakeMyTrip and Skyscanner—that lets users search, compare, and book flights, hotels, and packages. We created frontend for fast, responsive UI and advanced search filters, the backend APIs for secure booking and payment flows, and data-science pipelines for price prediction, personalized recommendations, and dynamic fare monitoring via web scraping. The system includes ETL and scheduling for real-time fare updates, scalable cloud deployment, analytics dashboards, and strong security and performance optimizations to provide a seamless booking experience for global users.
+                              </p>
+                            </div>
+
+                            <!-- <div class="reveal-wrapper"><a href="#" class="text-lg font-medium border-b border-white pb-1 cursor-link" data-anim="reveal">View Project</a></div> -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="py-24 sm:py-32 md:py-40">
+                 <div class="container mx-auto px-6 sm:px-8 md:px-12 text-center" data-anim-container>
+                    <div class="reveal-wrapper"><h2 class="text-5xl md:text-7xl font-bold mb-16" data-anim="reveal">Process</h2></div>
+                    <div class="max-w-3xl mx-auto space-y-8 text-left">
+                    
+                        <div class="border-b border-gray-700 py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">1. Discover</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">I begin by learning about your business, goals, and audience. Through research and analysis I identify opportunities, pain points, and success metrics that will shape the project.</p></div>
+                        </div>
+                    
+                        <div class="border-b border-gray-700 py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">2. Define</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">I define the project scope, requirements, and timeline, and create a clear roadmap. This ensures priorities are aligned and expectations are set from day one.</p></div>
+                        </div>
+                    
+                        <div class="border-b border-gray-700 py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">3. Design</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">I craft wireframes and prototypes, then refine visual designs focused on usability and brand consistency—iterating with you until it feels right.</p></div>
+                        </div>
+                    
+                        <div class="border-b border-gray-700 py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">4. Develop</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">I build and deploy the product using modern technologies and best practices, ensuring it’s fast, secure, and scalable. I also provide testing, launch support, and documentation for smooth handoff.</p></div>
+                        </div>
+                    
+                        <div class="border-b border-gray-700 py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">5. Test & Refine</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">I conduct testing and gather feedback to refine features, fix issues, and ensure the product meets the highest quality standards.</p></div>
+                        </div>
+                    
+                        <div class="border-b border-gray-700 py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">6. Launch</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">I deploy the product, ensuring it’s fully functional, optimized, and accessible. I handle performance monitoring and initial user onboarding.</p></div>
+                        </div>
+                    
+                        <div class="py-8">
+                            <div class="reveal-wrapper"><h3 class="text-3xl lg:text-4xl font-bold" data-anim="reveal">7. Support & Optimize</h3></div>
+                            <div class="reveal-wrapper"><p class="text-lg text-gray-400 mt-4" data-anim="reveal">Post-launch, I provide support, track analytics, and implement improvements to continually enhance the user experience and product performance.</p></div>
+                        </div>
+                    
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="py-24 sm:py-32 md:py-40 overflow-hidden cursor-drag" data-anim-container>
+                <div class="reveal-wrapper"><h2 class="text-5xl md:text-7xl font-bold mb-16 p-3 text-center" data-anim="reveal">What my clients say</h2></div>
+                <div class="testimonial-marquee">
+                    <div class="testimonial-marquee-content flex gap-8">
+                      <div class="bg-[#1C1C1C] p-8 rounded-2xl w-96 flex-shrink-0 break-words">
+                        <p class="text-lg text-gray-300">"Working with Zynos was a game-changer for our business. They helped us create a stunning website that has significantly improved our online presence and conversions."</p>
+                        <div class="mt-6 font-bold text-white">Laksh Jain, Sun Merchandising</div>
+                      </div>
+                      <div class="bg-[#1C1C1C] p-8 rounded-2xl w-96 flex-shrink-0 break-words">
+                        <p class="text-lg text-gray-300">"The Zynos is incredibly talented and professional. They delivered a high-quality product that exceeded our expectations."</p>
+                        <div class="mt-6 font-bold text-white">Swasttik Plastic Industries</div>
+                      </div>
+                      <div class="bg-[#1C1C1C] p-8 rounded-2xl w-96 flex-shrink-0 break-words">
+                        <p class="text-lg text-gray-300">"I'm so impressed with the quality of work and attention to detail."</p>
+                        <div class="mt-6 font-bold text-white">Krunal, Co-Founder of E-vegah</div>
+                      </div>
+                      <div class="bg-[#1C1C1C] p-8 rounded-2xl w-96 flex-shrink-0 break-words">
+                        <p class="text-lg text-gray-300">"I would highly recommend them to anyone looking for a top-notch digital agency."</p>
+                        <div class="mt-6 font-bold text-white">Baldev Amin, Mentor at Tech-Xi</div>
+                      </div>
+                       <div class="bg-[#1C1C1C] p-8 rounded-2xl w-96 flex-shrink-0 break-words">
+                        <p class="text-lg text-gray-300">"Working with Zynos was a game-changer for our business. They helped us create a stunning website that has significantly improved our online presence and conversions."</p>
+                        <div class="mt-6 font-bold text-white">Laksh Jain, Sun Merchandising</div>
+                      </div>
+                    </div>
+                </div>
+                <!-- </div> -->
+                
+                
+            </section>
+
+            <section class="py-24 sm:py-32 md:py-40 overflow-hidden " data-anim-container>
+                 <div class="container mx-auto px-6 sm:px-8 md:px-12 text-center">
+                     <div class="reveal-wrapper"><h2 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter max-w-4xl mx-auto" data-anim="reveal">Ready to bring your ideas to life?</h2></div>
+                     <div class="reveal-wrapper"><p class="text-lg md:text-xl max-w-2xl mx-auto mt-8 mb-12 text-gray-400" data-anim="reveal">I'd love to hear from you. Whether you have a clear vision or just a spark of an idea, we can help you turn it into a reality. Let's create something amazing together.</p></div>
+                     <div class="reveal-wrapper"><a href="mailto:sujal0710rajput@gmail.com" class="inline-block bg-white text-black font-bold py-4 px-10 rounded-full text-lg transition-transform duration-300 cursor-link" data-anim="fade-up">Get in Touch</a></div>
+                 </div>
+            </section>
+        </div>
+    </main>
+    
+    <footer class="py-16 bg-[#151515] rounded-t-3xl relative z-20">
+        <div class="container mx-auto px-6 sm:px-8 md:px-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div><a href="#" class="text-white font-bold text-xl flex items-center gap-2 justify-center md:justify-start cursor-link"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>RAJPUT SUJAL</span></a><p class="text-gray-400 mt-4">© 2024. All rights reserved.</p></div>
+            <div class="flex justify-center md:justify-end md:col-span-2 space-x-6"><a href="https://www.instagram.com/sujallrajput" class="text-gray-400 hover:text-white cursor-link">Instagram</a><a href="https://www.linkedin.com/in/sujal-rajput" class="text-gray-400 hover:text-white cursor-link">LinkedIn</a></div>
+        </div></div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            gsap.registerPlugin(ScrollTrigger);
+
+            const cursorDot = document.querySelector('#cursor-dot');
+            const cursorCircle = document.querySelector('#cursor-circle');
+
+            gsap.set([cursorDot, cursorCircle], { xPercent: -50, yPercent: -50 });
+
+            window.addEventListener('mousemove', e => {
+                gsap.to(cursorDot, { duration: 0.15, x: e.clientX, y: e.clientY });
+                gsap.to(cursorCircle, { duration: 0.4, x: e.clientX, y: e.clientY, ease: 'power2.out' });
+            });
+            
+            document.querySelectorAll('.cursor-view').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    document.body.classList.add('cursor-hover-view');
+                    cursorCircle.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                });
+                el.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('cursor-hover-view');
+                    cursorCircle.innerHTML = '';
+                });
+            });
+            
+            document.querySelectorAll('.cursor-drag').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    document.body.classList.add('cursor-hover-drag');
+                    cursorCircle.innerHTML = ' ';
+                });
+                el.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('cursor-hover-drag');
+                    cursorCircle.innerHTML = '';
+                });
+            });
+            
+            document.querySelectorAll('.cursor-link').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    document.body.classList.add('cursor-hover-link');
+                });
+                el.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('cursor-hover-link');
+                });
+            });
+
+            ScrollTrigger.create({
+                start: 'top -80',
+                end: 99999,
+                toggleClass: { className: 'header-scrolled', target: '#main-header' }
+            });
+
+            const containers = document.querySelectorAll('[data-anim-container]');
+            containers.forEach(container => {
+                const revealElements = container.querySelectorAll('[data-anim="reveal"]');
+                gsap.from(revealElements, {
+                    yPercent: 110,
+                    stagger: 0.08,
+                    duration: 0.8,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: container,
+                        start: 'top 80%',
+                    }
+                });
+            });
+                
+            const parallaxImages = document.querySelectorAll('[data-anim="parallax-img"]');
+            parallaxImages.forEach(img => {
+                const wrapper = img.parentElement;
+                gsap.to(img, {
+                    scale: 1.15,
+                    yPercent: -10,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: wrapper,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: true
+                    }
+                });
+            });
+
+            document.querySelectorAll('.marquee-content').forEach(marquee => {
+                if (!marquee.dataset.duplicated) {
+                    const content = marquee.innerHTML;
+                    marquee.innerHTML += content;
+                    marquee.dataset.duplicated = true;
+                }
+            });
+        });
+    </script>
+    
+    <script>
+        const imageLeft = document.getElementById('image-left');
+        const imageRight = document.getElementById('image-right');
+        const heroText = document.getElementById('hero-text');
+        const heroTextInner = document.getElementById('hero-text-inner');
+        const scrollSpacer = document.getElementById('scroll-spacer');
+        
+        let animationDistance = 0;
+        let isMobile = window.innerWidth < 768;
+        
+        // Image sets for rotation
+        const imageSets = [
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 15.19.50_2683f5bd.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 15.19.50_2683f5bd.jpg'
+            },
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 16.24.27_b2676b9a.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 16.24.27_b2676b9a.jpg'
+            },
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 15.19.51_4b565c87.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 15.19.51_4b565c87.jpg'
+            },
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 16.24.27_d376f35f.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 16.24.27_d376f35f.jpg'
+            },
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 15.19.51_967b0bff.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 15.19.51_967b0bff.jpg'
+            },
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 16.24.27_dbb30d9e.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 16.24.27_dbb30d9e.jpg'
+            },
+            {
+                left: 'images/WhatsApp Image 2025-10-18 at 15.19.52_82b1edcd.jpg',
+                right: 'images/WhatsApp Image 2025-10-18 at 15.19.52_82b1edcd.jpg'
+            },
+            // {
+            //     left: 'images/WhatsApp Image 2025-10-18 at 15.19.52_e0d51331.jpg',
+            //     right: 'images/WhatsApp Image 2025-10-18 at 15.19.52_e0d51331.jpg'
+            // },
+            //  {
+            //     left: 'images/WhatsApp Image 2025-10-18 at 15.34.31_3bd19d9b.jpg',
+            //     right: 'images/WhatsApp Image 2025-10-18 at 15.34.31_3bd19d9b.jpg'
+            // }
+            // {
+            //     left: 'images/WhatsApp Image 2025-10-18 at 15.19.53_5cc77fd8.jpg',
+            //     right: 'images/WhatsApp Image 2025-10-18 at 15.19.53_5cc77fd8.jpg'
+            // },
+            // {
+            //     left: 'images/WhatsApp Image 2025-10-18 at 15.19.53_07484c19.jpg',
+            //     right: 'images/WhatsApp Image 2025-10-18 at 15.19.53_07484c19.jpg'
+            // }
+            // },
+            // {
+            //     left: 'images/WhatsApp Image 2025-10-18 at 15.19.52_82b1edcd.jpg',
+            //     right: 'images/WhatsApp Image 2025-10-18 at 15.19.52_82b1edcd.jpg'
+            // },
+            // {
+            //     left: 'images/WhatsApp Image 2025-10-18 at 15.19.52_e0d51331.jpg',
+            //     right: 'images/WhatsApp Image 2025-10-18 at 15.19.52_e0d51331.jpg'
+            // }
+        ];
+        
+        let currentImageIndex = 0;
+        let imageRotationInterval;
+
+        function rotateImages() {
+            currentImageIndex = (currentImageIndex + 1) % imageSets.length;
+            
+            // Fade out effect
+            imageLeft.style.transition = 'opacity 0.5s ease-in-out';
+            imageRight.style.transition = 'opacity 0.5s ease-in-out';
+            imageLeft.style.opacity = '0';
+            imageRight.style.opacity = '0';
+            
+            setTimeout(() => {
+                imageLeft.src = imageSets[currentImageIndex].left;
+                imageRight.src = imageSets[currentImageIndex].right;
+                
+                // Fade in effect
+                imageLeft.style.opacity = '1';
+                imageRight.style.opacity = '1';
+            }, 500);
+        }
+        
+        function startImageRotation() {
+            imageRotationInterval = setInterval(rotateImages, 3000);
+        }
+        
+        function stopImageRotation() {
+            if (imageRotationInterval) {
+                clearInterval(imageRotationInterval);
+            }
+        }
+
+        function handleScroll() {
+            if (animationDistance === 0) {
+                animationDistance = scrollSpacer.offsetHeight;
+                if (animationDistance === 0) return;
+            }
+            
+            const scrollY = window.scrollY;
+            const progress = Math.min(1, scrollY / animationDistance);
+            
+            // Stop image rotation when scrolling starts
+            if (scrollY > 50 && imageRotationInterval) {
+                stopImageRotation();
+            } else if (scrollY <= 50 && !imageRotationInterval) {
+                startImageRotation();
+            }
+            
+            if (isMobile) {
+                // Mobile: Images move left and right (horizontal split)
+                const moveDistance = window.innerWidth * 1.0;
+                
+                // Top image moves left
+                const translateLeft = -(progress * moveDistance);
+                imageLeft.style.transform = `translateX(${translateLeft}px)`;
+                
+                // Bottom image moves right
+                const translateRight = (progress * moveDistance);
+                imageRight.style.transform = `translateX(${translateRight}px)`;
+                
+            } else {
+                // Desktop: Images move left and right (vertical split)
+                const moveDistance = window.innerWidth * 1.0;
+                
+                const translateLeft = -(progress * moveDistance);
+                const translateRight = (progress * moveDistance);
+                
+                imageLeft.style.transform = `translateX(${translateLeft}px)`;
+                imageRight.style.transform = `translateX(${translateRight}px)`;
+            }
+            
+            // Text Animation: Comes from bottom and back (3D effect)
+            const startZ = -200;
+            const startY = 100;
+            
+            const translateZ = startZ * (1 - progress);
+            const translateY = startY * (1 - progress);
+            
+            const textOpacity = Math.min(1, progress * 1.5);
+            const scale = 0.7 + (0.3 * progress);
+            
+            heroTextInner.style.transform = `translateZ(${translateZ}px) translateY(${translateY}px) scale(${scale})`;
+            heroTextInner.style.opacity = textOpacity;
+        }
+
+        function init() {
+            isMobile = window.innerWidth < 768;
+            animationDistance = scrollSpacer.offsetHeight;
+            
+            window.scrollTo(0, 0); 
+            handleScroll();
+            startImageRotation();
+        }
+        
+        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('load', init);
+        window.addEventListener('resize', init);
+    </script>
+
+</body>
+</html>
